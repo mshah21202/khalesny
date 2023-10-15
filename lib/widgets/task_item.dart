@@ -14,8 +14,9 @@ class TaskItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: task.isComplete ? Colors.lightGreen : Colors.black12,
-          borderRadius: BorderRadius.circular(16)),
+        color: task.isComplete ? Colors.lightGreen : Colors.black12,
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Row(

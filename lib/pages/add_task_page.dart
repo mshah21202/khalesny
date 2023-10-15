@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:khalesny/data/task.dart';
 
 class AddTaskPage extends StatelessWidget {
   AddTaskPage({super.key, required this.onTaskCreated});
   final TextEditingController _controller = TextEditingController();
-  final void Function(String) onTaskCreated;
+  final void Function(Task) onTaskCreated;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,7 +13,7 @@ class AddTaskPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          onTaskCreated(_controller.text);
+          onTaskCreated(Task(name: _controller.text));
           Navigator.pop(context);
         },
         child: const Icon(Icons.check),

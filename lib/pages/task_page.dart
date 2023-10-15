@@ -1,21 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:khalesny/data/task.dart';
 import 'package:khalesny/pages/add_task_page.dart';
 import 'package:khalesny/widgets/task_item.dart';
 
 class TaskPage extends StatefulWidget {
-  TaskPage({super.key, required this.tasks});
-  final List<Task> tasks;
+  TaskPage({super.key});
 
   @override
   State<TaskPage> createState() => _TaskPageState();
 }
 
 class _TaskPageState extends State<TaskPage> {
+  List<Task> tasks = [];
+
+  @override
+  void initState() {
+    _getTasks();
+    super.initState();
+  }
+
+  void _getTasks() async {
+    var box = await Hive.openBox('tasks');
+
+    var list = box.get("task_list", defaultValue: []) as List;
+    tasks = list
+        .map((e) => (e as Map<dynamic, dynamic>).cast<String, dynamic>())
+        .map<Task>((e) => Task.fromJson(e))
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    var tasks = widget.tasks;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("5alesny"),
@@ -38,8 +54,17 @@ class _TaskPageState extends State<TaskPage> {
             context,
             MaterialPageRoute(
               builder: (context) => AddTaskPage(
-                onTaskCreated: (task) {
-                  tasks.add(Task(name: task));
+                onTaskCreated: (task) async {
+                  var box = await Hive.openBox('tasks');
+
+                  var list = box.get("task_list", defaultValue: []) as List;
+
+                  list.add(task.toJson());
+
+                  box.put("task_list", list).then((value) {
+                    _getTasks();
+                    setState(() {});
+                  });
                 },
               ),
             ),
@@ -59,9 +84,17 @@ class _TaskPageState extends State<TaskPage> {
                     tasks[index].isComplete = newValue ?? false;
                     setState(() {});
                   },
-                  onDelete: () {
-                    tasks.removeAt(index);
-                    setState(() {});
+                  onDelete: () async {
+                    var box = await Hive.openBox('tasks');
+
+                    var list = box.get("task_list", defaultValue: []) as List;
+
+                    list.removeAt(index);
+
+                    box.put("task_list", list).then((value) {
+                      _getTasks();
+                      setState(() {});
+                    });
                   },
                 ),
               );
