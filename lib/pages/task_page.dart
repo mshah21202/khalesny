@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:khalesny/data/task.dart';
 import 'package:khalesny/pages/add_task_page.dart';
 import 'package:khalesny/widgets/task_item.dart';
@@ -38,8 +39,12 @@ class _TaskPageState extends State<TaskPage> {
             context,
             MaterialPageRoute(
               builder: (context) => AddTaskPage(
-                onTaskCreated: (task) {
+                onTaskCreated: (task) async {
                   tasks.add(Task(name: task));
+
+                  var box = await Hive.openBox('tasks');
+
+                  box.get("task_list", defaultValue: []);
                 },
               ),
             ),
