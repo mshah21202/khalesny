@@ -28,6 +28,8 @@ class _TaskPageState extends State<TaskPage> {
         .map((e) => (e as Map<dynamic, dynamic>).cast<String, dynamic>())
         .map<Task>((e) => Task.fromJson(e))
         .toList();
+
+    setState(() {});
   }
 
   @override
@@ -80,9 +82,23 @@ class _TaskPageState extends State<TaskPage> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: TaskItem(
                   task: tasks[index],
-                  onChanged: (newValue) {
-                    tasks[index].isComplete = newValue ?? false;
-                    setState(() {});
+                  onChanged: (newValue) async {
+                    var box = await Hive.openBox('tasks');
+
+                    var list = (box.get("task_list", defaultValue: []) as List)
+                        .map((e) => (e as Map<dynamic, dynamic>)
+                            .cast<String, dynamic>())
+                        .map<Task>((e) => Task.fromJson(e))
+                        .toList();
+
+                    list[index].isComplete = newValue ?? false;
+
+                    box
+                        .put("task_list", list.map((e) => e.toJson()).toList())
+                        .then((value) {
+                      _getTasks();
+                      setState(() {});
+                    });
                   },
                   onDelete: () async {
                     var box = await Hive.openBox('tasks');
